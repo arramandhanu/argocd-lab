@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/arramandhanu/argocd-lab.git
     targetRevision: main
-    path: dev
+    path: dev/app1
   destination:
     server: https://kubernetes.default.svc
     namespace: app1
@@ -16,4 +16,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-
