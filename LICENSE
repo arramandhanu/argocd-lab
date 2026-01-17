@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024
+Copyright (c) 2024 ArgoCD App-of-Apps Lab Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,49 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Third-Party Licenses
+
+This project uses the following open-source components:
+
+### ArgoCD
+- License: Apache License 2.0
+- Copyright: The Argo Authors
+- Source: https://github.com/argoproj/argo-cd
+
+### Helm
+- License: Apache License 2.0
+- Copyright: The Helm Authors
+- Source: https://github.com/helm/helm
+
+### Kustomize
+- License: Apache License 2.0
+- Copyright: The Kubernetes Authors
+- Source: https://github.com/kubernetes-sigs/kustomize
+
+### Nginx
+- License: BSD-2-Clause
+- Copyright: Nginx, Inc.
+- Source: https://nginx.org
+
+---
+
+## Usage Rights
+
+You are free to:
+- Use this template for personal and commercial projects
+- Modify and distribute derivative works
+- Use in production environments
+- Include in your organization's infrastructure
+
+No attribution required, but appreciated.
+
+---
+
+## Disclaimer
+
+This software is provided for educational and production use. The authors make
+no warranties regarding the suitability for any particular purpose. Use at your
+own risk. Always test in non-production environments before deploying to production.
