@@ -1,0 +1,42 @@
+# Development environment values
+# Low resources, single replica, debug-friendly
+
+replicaCount: 1
+
+image:
+  tag: "1.25.3-alpine"
+  pullPolicy: Always
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 25m
+    memory: 32Mi
+
+autoscaling:
+  enabled: false
+
+configMap:
+  enabled: true
+  data:
+    index.html: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ArgoCD Lab - DEV</title>
+        <style>
+          body { font-family: sans-serif; text-align: center; padding: 50px; background: #0d1117; color: #c9d1d9; }
+          h1 { color: #58a6ff; }
+          .env { color: #3fb950; font-size: 1.5em; font-weight: bold; }
+          .badge { background: #238636; padding: 5px 15px; border-radius: 20px; display: inline-block; margin: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>ArgoCD App-of-Apps Lab</h1>
+        <p class="env"><span class="badge">DEV</span></p>
+        <p>Deployed via Helm + ArgoCD</p>
+        <p><small>Build: v1.0.0-dev</small></p>
+      </body>
+      </html>

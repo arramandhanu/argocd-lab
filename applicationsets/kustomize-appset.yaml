@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx-kustomize-appset
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/arramandhanu/argocd-lab.git
+        revision: main
+        directories:
+          - path: kustomize/nginx/overlays/*
+  template:
+    metadata:
+      name: nginx-kustomize-{{path.basename}}
+      labels:
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/instance: kustomize-{{path.basename}}
+        environment: "{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/arramandhanu/argocd-lab.git
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: nginx-kustomize-{{path.basename}}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

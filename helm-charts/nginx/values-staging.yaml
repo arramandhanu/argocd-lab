@@ -1,0 +1,45 @@
+# Staging environment values
+# Moderate resources, 2 replicas, closer to prod
+
+replicaCount: 2
+
+image:
+  tag: "1.25.3-alpine"
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+
+configMap:
+  enabled: true
+  data:
+    index.html: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ArgoCD Lab - STAGING</title>
+        <style>
+          body { font-family: sans-serif; text-align: center; padding: 50px; background: #161b22; color: #c9d1d9; }
+          h1 { color: #58a6ff; }
+          .env { color: #d29922; font-size: 1.5em; font-weight: bold; }
+          .badge { background: #9e6a03; padding: 5px 15px; border-radius: 20px; display: inline-block; margin: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>ArgoCD App-of-Apps Lab</h1>
+        <p class="env"><span class="badge">STAGING</span></p>
+        <p>Deployed via Helm + ArgoCD</p>
+        <p><small>Build: v1.0.0-rc1</small></p>
+      </body>
+      </html>

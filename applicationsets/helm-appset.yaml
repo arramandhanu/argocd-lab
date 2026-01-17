@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: nginx-helm-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            namespace: nginx-helm-dev
+            valuesFile: values-dev.yaml
+            replicas: "1"
+          - env: staging
+            namespace: nginx-helm-staging
+            valuesFile: values-staging.yaml
+            replicas: "2"
+          - env: prod
+            namespace: nginx-helm-prod
+            valuesFile: values-prod.yaml
+            replicas: "3"
+  template:
+    metadata:
+      name: nginx-helm-{{env}}
+      labels:
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/instance: helm-{{env}}
+        environment: "{{env}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/arramandhanu/argocd-lab.git
+        targetRevision: main
+        path: helm-charts/nginx
+        helm:
+          valueFiles:
+            - "{{valuesFile}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{namespace}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

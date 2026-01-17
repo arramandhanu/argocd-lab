@@ -1,0 +1,17 @@
+apiVersion: v2
+name: nginx
+description: A production-ready nginx chart for ArgoCD App-of-Apps demo
+type: application
+version: 1.0.0
+appVersion: "1.25.3"
+maintainers:
+  - name: arramandhanu
+    url: https://github.com/arramandhanu
+keywords:
+  - nginx
+  - webserver
+  - argocd
+  - gitops
+home: https://github.com/arramandhanu/argocd-lab
+sources:
+  - https://github.com/arramandhanu/argocd-lab

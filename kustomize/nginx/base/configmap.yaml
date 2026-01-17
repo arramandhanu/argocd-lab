@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>ArgoCD Lab - Nginx</title>
+      <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #1a1a2e; color: #fff; }
+        h1 { color: #4fc3f7; }
+        .env { color: #bb86fc; font-size: 1.2em; }
+      </style>
+    </head>
+    <body>
+      <h1>ArgoCD App-of-Apps Lab</h1>
+      <p class="env">Environment: base</p>
+      <p>Deployed via Kustomize + ArgoCD</p>
+    </body>
+    </html>

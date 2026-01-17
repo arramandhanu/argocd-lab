@@ -1,0 +1,103 @@
+# Default values for nginx chart
+# Override these in environment-specific values files
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: "1.25.3-alpine"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 101
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: nginx.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+configMap:
+  enabled: true
+  data:
+    index.html: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ArgoCD Lab - Nginx</title>
+        <style>
+          body { font-family: sans-serif; text-align: center; padding: 50px; background: #1a1a2e; color: #fff; }
+          h1 { color: #4fc3f7; }
+          .env { color: #bb86fc; font-size: 1.2em; }
+        </style>
+      </head>
+      <body>
+        <h1>Welcome to ArgoCD Lab</h1>
+        <p class="env">Environment: default</p>
+        <p>Deployed via GitOps with ArgoCD</p>
+      </body>
+      </html>
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
