@@ -19,11 +19,13 @@ spec:
     server: https://kubernetes.default.svc
     namespace: nginx-kustomize-prod
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # PRODUCTION: Manual sync only - no auto-sync on merge
+    # Trigger sync via: argocd app sync nginx-kustomize-prod
+    # Or click "Sync" in ArgoCD UI
     syncOptions:
       - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
     retry:
       limit: 5
       backoff:

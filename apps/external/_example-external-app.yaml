@@ -1,0 +1,39 @@
+# Example: External microservice from another repository
+# This demonstrates how to deploy apps from EXTERNAL repos
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: user-service-dev
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: user-service
+    app.kubernetes.io/instance: user-service-dev
+    environment: dev
+    managed-by: argocd-lab
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # Points to EXTERNAL microservice repository
+    repoURL: https://github.com/your-org/user-service.git
+    targetRevision: main
+    path: deploy/helm
+    helm:
+      valueFiles:
+        - values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: user-service-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

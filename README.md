@@ -86,6 +86,7 @@ See [Configuration Reference](docs/CONFIGURATION.md) for the full list.
 | 📦 **ApplicationSets** | Auto-generate apps from lists or directories |
 | 🌍 **Multi-Environment** | Separate configs for dev, staging, production |
 | 🔐 **Security Best Practices** | Non-root containers, resource limits, pod anti-affinity |
+| 🔗 **Multi-Repo Support** | Manage 35+ microservices in external repos ([guide](docs/MULTI_REPO_GUIDE.md)) |
 
 ## Architecture
 
@@ -186,6 +187,23 @@ kubectl apply -f applicationsets/helm-appset.yaml
 # Kustomize apps (auto-discovers overlays)
 kubectl apply -f applicationsets/kustomize-appset.yaml
 ```
+
+### Option 4: Multi-Repo Microservices
+
+Have 35+ microservices in separate repos? Use the microservice generator:
+
+```bash
+# Add one service interactively
+./add-microservice.sh --single
+
+# Or batch generate from config
+./add-microservice.sh
+
+# Or generate an ApplicationSet
+./add-microservice.sh --appset
+```
+
+See the full [Multi-Repo Guide](docs/MULTI_REPO_GUIDE.md) for managing large-scale deployments.
 
 ## Usage
 
