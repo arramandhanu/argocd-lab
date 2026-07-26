@@ -33,7 +33,9 @@ jobs:
 
       - name: YAML Lint
         run: |
-          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./.github/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*") || true
+          set +e
+          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./.github/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*")
+          echo "YAML lint completed (warnings are non-blocking)"
 
       - name: Helm Lint
         run: |
