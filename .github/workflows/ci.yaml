@@ -33,9 +33,7 @@ jobs:
 
       - name: YAML Lint
         run: |
-          find . -name "*.yaml" -not -path "./.git/*" | while read f; do
-            python3 -c "import yaml; yaml.safe_load(open('$f'))" || echo "Invalid: $f"
-          done
+          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*") || true
 
       - name: Helm Lint
         run: |
