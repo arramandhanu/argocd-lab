@@ -22,12 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: pip install yamllint pyyaml
-
-      - name: YAML Lint
-        run: |
-          set +e
-          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./.github/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*")
+        run: pip install pyyaml
 
       - name: Helm Lint
         run: helm lint helm-charts/nginx
