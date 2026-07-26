@@ -5,7 +5,7 @@
 <h1 align="center">ArgoCD App-of-Apps Lab</h1>
 
 <p align="center">
-  Production-ready GitOps template with Helm and Kustomize examples
+  GitOps template with Helm and Kustomize examples
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@
 
 ## Overview
 
-A template repo for setting up GitOps workflows with ArgoCD. Includes working examples of Helm charts, Kustomize overlays, and the App-of-Apps pattern. Fork it, configure it, and deploy.
+Template repo for GitOps workflows with ArgoCD. Includes Helm charts, Kustomize overlays, and App-of-Apps pattern. Fork it, configure it, deploy.
 
 ---
 
@@ -186,6 +186,25 @@ kustomize build kustomize/nginx/overlays/dev
 - [Configuration Reference](docs/CONFIGURATION.md)
 - [Multi-Repo Guide](docs/MULTI_REPO_GUIDE.md)
 - [Sync Policies](docs/SYNC_POLICIES.md)
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+- [Migration Guide](docs/MIGRATION.md)
+
+## Production Hardening
+
+This template includes:
+
+| Feature | Description |
+|---------|-------------|
+| PodDisruptionBudget | Maintains HA during updates |
+| PriorityClass | Workload prioritization |
+| ResourceQuota/LimitRange | Namespace-level quotas |
+| NetworkPolicy | Pod network isolation |
+| TopologySpreadConstraints | Multi-node distribution |
+| Graceful shutdown | PreStop hooks + terminationGracePeriod |
+| ReadOnlyRootFilesystem | Security hardening (prod) |
+| Secrets management | Sealed Secrets + ESO examples |
+
+See `policies/` directory for all policies.
 
 ---
 

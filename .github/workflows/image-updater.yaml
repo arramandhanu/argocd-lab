@@ -1,0 +1,36 @@
+name: ArgoCD Image Updater
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Check every 10 minutes
+  workflow_dispatch:
+
+jobs:
+  update-images:
+    name: Update Image Tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup ArgoCD Image Updater
+        run: |
+          curl -sLO https://github.com/argoproj-labs/argocd-image-updater/releases/download/v0.12.0/argocd-image-updater-linux-amd64
+          chmod +x argocd-image-updater-linux-amd64
+          sudo mv argocd-image-updater-linux-amd64 /usr/local/bin/argocd-image-updater
+
+      - name: List updatable images
+        run: |
+          argocd-image-updater list nginx-helm-dev nginx-helm-staging --kubeconfig /dev/null || true
+
+      - name: Update images
+        run: |
+          argocd-image-updater push \
+            --argocd-server $ARGOCD_SERVER \
+            --argocd-auth-token $ARGOCD_AUTH_TOKEN \
+            --grpc-web \
+            --kubeconfig /dev/null \
+            nginx-helm-dev nginx-helm-staging
+        env:
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}

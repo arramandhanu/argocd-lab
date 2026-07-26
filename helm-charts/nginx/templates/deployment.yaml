@@ -33,6 +33,15 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.podSecurityContext.readOnlyRootFilesystem }}
+          args:
+            - /bin/sh
+            - -c
+            - "cp /usr/share/nginx/html/index.html /tmp/ && nginx -g 'daemon off;'"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
@@ -51,12 +60,18 @@ spec:
           volumeMounts:
             - name: html-content
               mountPath: /usr/share/nginx/html
+            {{- if not .Values.podSecurityContext.readOnlyRootFilesystem }}
+            {{- end }}
           {{- end }}
       {{- if .Values.configMap.enabled }}
       volumes:
         - name: html-content
           configMap:
             name: {{ include "nginx.fullname" . }}-html
+        {{- if .Values.podSecurityContext.readOnlyRootFilesystem }}
+        - name: tmp
+          emptyDir: {}
+        {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -66,7 +81,24 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.topologySpreadConstraints.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.topologySpreadConstraints.maxSkew }}
+          topologyKey: {{ .Values.topologySpreadConstraints.topologyKey }}
+          whenUnsatisfiable: {{ .Values.topologySpreadConstraints.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "nginx.selectorLabels" . | nindent 14 }}
+      {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ include "nginx.fullname" . }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      {{- with .Values.lifecycle }}
+      lifecycle:
         {{- toYaml . | nindent 8 }}
       {{- end }}
