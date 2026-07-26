@@ -1,0 +1,88 @@
+name: CI - Validate and Lint
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install tools
+        run: |
+          pip install yamllint
+          curl -sLO https://dl.k8s.io/release/$(curl -sL -rs https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+          chmod +x kubectl
+          curl -sLO https://github.com/helm/helm/releases/download/v3.14.0/helm-v3.14.0-linux-amd64.tar.gz
+          tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
+          mv linux-amd64/helm /usr/local/bin/helm
+          curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.4.0/kustomize_v5.4.0_linux_amd64.tar.gz | tar xz
+
+      - name: YAML Lint
+        run: |
+          find . -name "*.yaml" -not -path "./.git/*" | while read f; do
+            python3 -c "import yaml; yaml.safe_load(open('$f'))" || echo "Invalid: $f"
+          done
+
+      - name: Helm Lint
+        run: |
+          helm lint helm-charts/nginx
+
+      - name: Helm Template
+        run: |
+          helm template test helm-charts/nginx -f helm-charts/nginx/values-dev.yaml
+          helm template test helm-charts/nginx -f helm-charts/nginx/values-staging.yaml
+          helm template test helm-charts/nginx -f helm-charts/nginx/values-prod.yaml
+
+      - name: Kustomize Build
+        run: |
+          kustomize build kustomize/nginx/overlays/dev
+          kustomize build kustomize/nginx/overlays/staging
+          kustomize build kustomize/nginx/overlays/prod
+
+      - name: Validate Helm resources
+        run: |
+          echo "=== Dev ===" && helm template dev helm-charts/nginx -f helm-charts/nginx/values-dev.yaml | kubectl apply --dry-run=server -f -
+          echo "=== Staging ===" && helm template staging helm-charts/nginx -f helm-charts/nginx/values-staging.yaml | kubectl apply --dry-run=server -f -
+          echo "=== Prod ===" && helm template prod helm-charts/nginx -f helm-charts/nginx/values-prod.yaml | kubectl apply --dry-run=server -f -
+        env:
+          KUBECTL_VERSION: v1.28.0
+
+      - name: Validate Kustomize resources
+        run: |
+          echo "=== Dev ===" && kustomize build kustomize/nginx/overlays/dev | kubectl apply --dry-run=server -f -
+          echo "=== Staging ===" && kustomize build kustomize/nginx/overlays/staging | kubectl apply --dry-run=server -f -
+          echo "=== Prod ===" && kustomize build kustomize/nginx/overlays/prod | kubectl apply --dry-run=server -f -
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
