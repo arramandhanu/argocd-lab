@@ -8,6 +8,7 @@ image:
   repository: nginx
   tag: "1.25.3-alpine"
   pullPolicy: IfNotPresent
+  digest: ""  # Set to sha256:... for immutable tags
 
 nameOverride: ""
 fullnameOverride: ""
@@ -115,10 +116,6 @@ lifecycle:
         - /bin/sh
         - -c
         - "sleep 5"
-
-# Image tag digest pinning (use with ArgoCD Image Updater)
-image:
-  digest: ""  # Set to sha256:... for immutable tags
 
 # Topology spread for HA
 topologySpreadConstraints:

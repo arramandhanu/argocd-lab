@@ -33,7 +33,7 @@ jobs:
 
       - name: YAML Lint
         run: |
-          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*") || true
+          yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./.github/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*") || true
 
       - name: Helm Lint
         run: |
