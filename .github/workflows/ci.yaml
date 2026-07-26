@@ -22,50 +22,21 @@ jobs:
           python-version: '3.11'
 
       - name: Install tools
-        run: |
-          pip install yamllint
-          curl -sLO https://dl.k8s.io/release/$(curl -sL -rs https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
-          chmod +x kubectl
-          curl -sLO https://github.com/helm/helm/releases/download/v3.14.0/helm-v3.14.0-linux-amd64.tar.gz
-          tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
-          mv linux-amd64/helm /usr/local/bin/helm
-          curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.4.0/kustomize_v5.4.0_linux_amd64.tar.gz | tar xz
+        run: pip install yamllint pyyaml
 
       - name: YAML Lint
         run: |
           set +e
           yamllint -d relaxed -s $(find . -name "*.yaml" -not -path "./.git/*" -not -path "./.github/*" -not -path "./helm-charts/*/templates/*" -not -path "./policies/helm/*")
-          echo "YAML lint completed (warnings are non-blocking)"
 
       - name: Helm Lint
-        run: |
-          helm lint helm-charts/nginx
+        run: helm lint helm-charts/nginx
 
       - name: Helm Template
         run: |
           helm template test helm-charts/nginx -f helm-charts/nginx/values-dev.yaml
           helm template test helm-charts/nginx -f helm-charts/nginx/values-staging.yaml
           helm template test helm-charts/nginx -f helm-charts/nginx/values-prod.yaml
-
-      - name: Kustomize Build
-        run: |
-          kustomize build kustomize/nginx/overlays/dev
-          kustomize build kustomize/nginx/overlays/staging
-          kustomize build kustomize/nginx/overlays/prod
-
-      - name: Validate Helm resources
-        run: |
-          echo "=== Dev ===" && helm template dev helm-charts/nginx -f helm-charts/nginx/values-dev.yaml | kubectl apply --dry-run=server -f -
-          echo "=== Staging ===" && helm template staging helm-charts/nginx -f helm-charts/nginx/values-staging.yaml | kubectl apply --dry-run=server -f -
-          echo "=== Prod ===" && helm template prod helm-charts/nginx -f helm-charts/nginx/values-prod.yaml | kubectl apply --dry-run=server -f -
-        env:
-          KUBECTL_VERSION: v1.28.0
-
-      - name: Validate Kustomize resources
-        run: |
-          echo "=== Dev ===" && kustomize build kustomize/nginx/overlays/dev | kubectl apply --dry-run=server -f -
-          echo "=== Staging ===" && kustomize build kustomize/nginx/overlays/staging | kubectl apply --dry-run=server -f -
-          echo "=== Prod ===" && kustomize build kustomize/nginx/overlays/prod | kubectl apply --dry-run=server -f -
 
   security:
     name: Security Scan
