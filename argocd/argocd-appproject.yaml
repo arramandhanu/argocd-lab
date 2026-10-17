@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: nginx-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/description: "Project for nginx workloads with production hardening"
+spec:
+  description: Production-ready nginx applications
+  sourceRepos:
+    - https://github.com/arramandhanu/argocd-lab.git
+    - '*'  # Allow external repos for multi-repo pattern
+
+  destinations:
+    - namespace: nginx-*
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+
+  # Strict resource policies
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: policy
+      kind: PodDisruptionBudget
+
+  namespaceResourceBlacklist:
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: "*"
+    - group: "networking.k8s.io"
+      kind: "NetworkPolicy"
+    - group: "autoscaling"
+      kind: "HorizontalPodAutoscaler"
+    - group: ""
+      kind: "ConfigMap"
+    - group: ""
+      kind: "Service"
+    - group: ""
+      kind: "ServiceAccount"
+    - group: ""
+      kind: "Secret"
+
+  # Permit orphaned resource warnings
+  orphanedResources:
+    warn: true
+
+  # Sync window restrictions
+  syncWindows:
+    - kind: allow
+      schedule: '0 8-18 * * 1-5'  # Weekdays 8AM-6PM
+      duration: 10h
+      applications:
+        - '*-prod'
+    - kind: deny
+      schedule: '* * * * *'
+      duration: 14h
+      applications:
+        - '*-prod'

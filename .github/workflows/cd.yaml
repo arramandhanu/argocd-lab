@@ -1,0 +1,68 @@
+name: CD - Sync to ArgoCD
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
+
+env:
+  ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+  ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+jobs:
+  sync-staging:
+    name: Sync Staging
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: ArgoCD Sync - Helm
+        run: |
+          argocd login $ARGOCD_SERVER --token $ARGOCD_AUTH_TOKEN --grpc-web
+          argocd app sync nginx-helm-staging --prune --force
+        shell: bash
+
+  sync-prod:
+    name: Sync Production
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'prod'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: sync-staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: ArgoCD Sync - Helm Prod
+        run: |
+          argocd login $ARGOCD_SERVER --token $ARGOCD_AUTH_TOKEN --grpc-web
+          argocd app sync nginx-helm-prod --prune --force
+        shell: bash
+
+      - name: ArgoCD Sync - Kustomize Prod
+        run: |
+          argocd login $ARGOCD_SERVER --token $ARGOCD_AUTH_TOKEN --grpc-web
+          argocd app sync nginx-kustomize-prod --prune --force
+        shell: bash
+
+      - name: Notify on tag release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "Released: ${{ github.ref_name }}"

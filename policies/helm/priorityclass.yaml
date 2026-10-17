@@ -1,0 +1,11 @@
+{{- if .Values.priorityClass.enabled }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ include "nginx.fullname" . }}
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+value: {{ .Values.priorityClass.value | default 100 }}
+globalDefault: {{ .Values.priorityClass.globalDefault | default false }}
+description: {{ .Values.priorityClass.description | default "Priority class for nginx workloads" }}
+{{- end }}

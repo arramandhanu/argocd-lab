@@ -1,7 +1,5 @@
 # Contributing
 
-Thanks for your interest in contributing to this project!
-
 ## How to Contribute
 
 1. **Fork the repo** and create your branch from `main`
@@ -38,7 +36,19 @@ kustomize build kustomize/<app>/overlays/dev
 
 # Validate YAML syntax
 find . -name "*.yaml" -exec python3 -c "import yaml; yaml.safe_load(open('{}'))" \;
+
+# Run validation script
+./scripts/validate.sh
 ```
+
+## CI Pipeline
+
+All PRs require passing CI checks:
+- YAML validation
+- Helm lint + template
+- Kustomize build
+- Security scan (Trivy)
+- Kubernetes dry-run validation
 
 ## Questions?
 

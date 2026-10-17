@@ -4,14 +4,16 @@ kind: Kustomization
 metadata:
   name: nginx-base
 
-
 resources:
 - deployment.yaml
 - service.yaml
 - configmap.yaml
-labels:
-- includeSelectors: true
-  pairs:
-    app.kubernetes.io/component: webserver
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/part-of: argocd-lab
+
+commonLabels:
+  app.kubernetes.io/component: webserver
+  app.kubernetes.io/name: nginx
+  app.kubernetes.io/part-of: argocd-lab
+
+images:
+- name: nginx
+  newTag: 1.25.3-alpine

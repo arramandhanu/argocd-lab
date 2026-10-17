@@ -1,7 +1,5 @@
 #!/bin/bash
 # add-microservice.sh - Generate ArgoCD Application manifests for external microservices
-# This script reads from config/microservices.conf and generates Application YAMLs
-#
 # Usage:
 #   ./add-microservice.sh                    # Generate from config file
 #   ./add-microservice.sh --single           # Interactive mode for one service
